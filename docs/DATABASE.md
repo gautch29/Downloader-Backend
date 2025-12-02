@@ -2,7 +2,6 @@
 
 The application database is stored **outside the project directory** to prevent data loss during:
 - Git operations (`git pull`, `git reset`, etc.)
-- Build processes (`npm run build`)
 - Project cleanup
 
 ## Default Location
@@ -25,7 +24,7 @@ DATA_DIR=/path/to/your/data/directory
 
 Or when running the application:
 ```bash
-DATA_DIR=/mnt/storage/downloader-data npm start
+DATA_DIR=/mnt/storage/downloader-data swift run Run serve
 ```
 
 ## Important Notes

@@ -19,16 +19,12 @@
 - Secure user authentication with session management
 - Queue-based download system with real-time progress tracking
 - Plex Media Server integration for automatic library scanning
-- Bilingual interface (English/French)
-- Modern UI with system theme support
 - Path shortcuts for organized file management
 
 **Tech Stack:**
 - **Backend**: Swift 6, Vapor 4
-- **Frontend**: Next.js 15 (React 19)
 - **Database**: SQLite (Fluent ORM)
 - **Authentication**: JWT / BCrypt
-- **Styling**: Tailwind CSS with Shadcn/UI
 
 ---
 
@@ -48,13 +44,6 @@
     routes.swift      # Route definitions
 ```
 
-#### Frontend (Next.js)
-```
-/app                    # Next.js App Router pages
-/components            # Reusable UI components
-/lib                   # Core business logic
-```
-
 ### Process Architecture
 
 The application consists of:
@@ -64,10 +53,6 @@ The application consists of:
    - Handles API requests
    - Manages background download worker (in-process)
    - Serves as the source of truth for download state
-
-2. **Frontend Service** (Next.js):
-   - Serves the UI (port 3000)
-   - Consumes Backend API
 
 ---
 
@@ -184,7 +169,7 @@ Stores application-wide settings.
 ## Deployment
 
 ### Systemd (Linux)
-The backend can run as a systemd service. See `downloader-backend.service`.
+The backend can run as a systemd service. See `docs/DEPLOYMENT.md`.
 
 ### Environment Variables
 - `DATA_DIR`: Path to store database and downloads (default: `../downloader-data`).
