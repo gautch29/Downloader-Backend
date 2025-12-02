@@ -27,6 +27,8 @@ This guide explains how to run the Downloader Backend as a systemd service on Li
     -   `User`: Change to your user (e.g., `root` or a dedicated user).
     -   `WorkingDirectory`: Path to where you cloned the repo.
     -   `ExecStart`: Path to the `Run` executable.
+        > **Tip:** Run `swift build -c release --show-bin-path` to find the exact path to the `Run` executable.
+        > It will look something like `/path/to/repo/.build/x86_64-unknown-linux-gnu/release/Run`.
     -   `Environment`: Set `DATA_DIR` and `ONEFICHIER_API_KEY`.
 
 3.  **Reload Systemd**

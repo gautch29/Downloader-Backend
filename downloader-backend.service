@@ -8,6 +8,7 @@ User=root
 # Change this to your working directory
 WorkingDirectory=/opt/downloader/backend
 # Path to the executable
+# Run `swift build -c release --show-bin-path` to find the directory, then append "/Run"
 ExecStart=/opt/downloader/backend/.build/release/Run serve --hostname 0.0.0.0 --port 8080
 Restart=always
 RestartSec=5
