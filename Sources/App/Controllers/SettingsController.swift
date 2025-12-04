@@ -8,23 +8,39 @@ struct SettingsController: RouteCollection {
         settings.put(use: update)
     }
 
-    func get(req: Request) async throws -> Setting {
-        if let setting = try await Setting.query(on: req.db).first() {
-            return setting
+    struct SettingsResponse: Content {
+        var settings: Setting
+        var paths: [Path]
+    }
+
+    func get(req: Request) async throws -> SettingsResponse {
+        let setting: Setting
+        if let existing = try await Setting.query(on: req.db).first() {
+            setting = existing
         } else {
-            // Return default empty setting
-            return Setting()
+            setting = Setting()
         }
+        
+        let paths = try await Path.query(on: req.db).all()
+        
+        return SettingsResponse(settings: setting, paths: paths)
+    }
+
+    struct PathInput: Content {
+        var name: String
+        var path: String
     }
 
     struct UpdateSettingsRequest: Content {
         var plexUrl: String?
         var plexToken: String?
+        var paths: [PathInput]?
     }
 
-    func update(req: Request) async throws -> Setting {
+    func update(req: Request) async throws -> SettingsResponse {
         let updateReq = try req.content.decode(UpdateSettingsRequest.self)
         
+        // 1. Update Settings
         let setting: Setting
         if let existing = try await Setting.query(on: req.db).first() {
             setting = existing
@@ -36,6 +52,21 @@ struct SettingsController: RouteCollection {
         if let token = updateReq.plexToken { setting.plexToken = token }
         
         try await setting.save(on: req.db)
-        return setting
+        
+        // 2. Update Paths if provided
+        if let newPaths = updateReq.paths {
+            // Delete existing paths
+            try await Path.query(on: req.db).delete()
+            
+            // Create new paths
+            for pathInput in newPaths {
+                let path = Path(name: pathInput.name, path: pathInput.path)
+                try await path.save(on: req.db)
+            }
+        }
+        
+        // 3. Return updated data
+        let paths = try await Path.query(on: req.db).all()
+        return SettingsResponse(settings: setting, paths: paths)
     }
 }

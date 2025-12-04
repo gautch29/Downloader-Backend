@@ -79,8 +79,17 @@ Base URL: `http://localhost:8080/api`
 **Response:**
 ```json
 {
-  "plexUrl": "http://192.168.1.10:32400",
-  "plexToken": "xyz..."
+  "settings": {
+    "plexUrl": "http://192.168.1.10:32400",
+    "plexToken": "xyz..."
+  },
+  "paths": [
+    {
+      "id": 1,
+      "name": "Movies",
+      "path": "/movies"
+    }
+  ]
 }
 ```
 
@@ -91,6 +100,12 @@ Base URL: `http://localhost:8080/api`
 ```json
 {
   "plexUrl": "http://192.168.1.10:32400",
-  "plexToken": "new_token"
+  "plexToken": "new_token",
+  "paths": [
+    {
+      "name": "Movies",
+      "path": "/new/movies/path"
+    }
+  ]
 }
 ```
