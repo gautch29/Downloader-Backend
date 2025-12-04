@@ -33,7 +33,9 @@ struct FileBrowserController: RouteCollection {
                 let fullPath = (path as NSString).appendingPathComponent(name)
                 var isDir: ObjCBool = false
                 if fileManager.fileExists(atPath: fullPath, isDirectory: &isDir) {
-                    items.append(FileItem(name: name, path: fullPath, isDirectory: isDir.boolValue))
+                    if isDir.boolValue {
+                        items.append(FileItem(name: name, path: fullPath, isDirectory: true))
+                    }
                 }
             }
         } catch {
