@@ -1,61 +1,67 @@
-# Downloader App
+# Downloader App (Go Backend)
 
-![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)
-![Vapor](https://img.shields.io/badge/Vapor-4.0-purple.svg)
+![Go](https://img.shields.io/badge/Go-1.24-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
-A modern, self-hosted download manager built with **Swift (Vapor)**. This application allows you to search for movies, manage downloads from 1fichier, and integrate seamlessly with Plex.
+A modern, self-hosted download manager rewritten in **Go**. This application allows you to search for movies, manage downloads from 1fichier, and integrate seamlessly with Plex.
 
 ## Features
 
--   **Swift Backend**: High-performance, type-safe backend using Vapor 4.
--   **Zone-Telechargement Integration**: Search and download movies directly.
+-   **Go Backend**: High-performance, lightweight backend using standard library + minimal dependencies.
+-   **Remote PostgreSQL**: Stateless architecture using an external database.
 -   **1fichier Support**: Automatically extracts and downloads files from 1fichier links.
 -   **Plex Integration**: Automatically scans your Plex library upon download completion.
 -   **User Authentication**: Secure login with session management.
--   **Systemd Support**: Run as a background service on Linux.
 
 ## Tech Stack
 
--   **Backend**: Swift 6, Vapor 4, Fluent (SQLite), SwiftSoup, JWT/BCrypt.
--   **Database**: SQLite (stored in `../downloader-data`).
+-   **Backend**: Go (Golang) 1.22+, `chi` router, `pgx` driver.
+-   **Database**: PostgreSQL.
 
 ## Quick Start
 
 ### Prerequisites
 
--   Swift 6.0+
+-   Go 1.22+
+-   PostgreSQL Database
 
-### Backend Setup
+### Setup
 
-```bash
-cd backend
-swift build
-swift run Run migrate -y
-swift run Run serve --hostname 0.0.0.0 --port 8080
-```
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/gautch29/downloader-backend.git
+    cd downloader-backend
+    ```
 
-## Configuration
+2.  **Configuration**:
+    Create a `.env` file based on `.env.example`:
+    ```bash
+    cp .env.example .env
+    ```
+    Edit `.env` and populate your variables:
+    -   `DATABASE_URL`: Connection string (e.g., `postgres://user:pass@host:5432/dbname`)
+    -   `PORT`: Server port (default: 8080)
+    -   `JWT_SECRET`: Random string for signing sessions
+    -   `ONEFICHIER_API_KEY`: Your 1fichier API key
 
-The application stores its configuration in `config/settings.json`.
-You can copy the example file to get started:
+3.  **Run**:
+    ```bash
+    go mod tidy
+    go run cmd/server/main.go
+    ```
+    Alternatively, build the binary:
+    ```bash
+    go build -o server ./cmd/server/main.go
+    ./server
+    ```
 
-```bash
-cp config/settings.example.json config/settings.json
-```
+## API Documentation
 
-## Documentation
+-   **Health Check**: `GET /api/health`
+-   **Login**: `POST /api/auth/login`
+-   **Downloads**: `GET /api/downloads`, `POST /api/downloads`
 
--   [Technical Documentation](docs/DOCUMENTATION.md)
--   [API Documentation](docs/API_DOCUMENTATION.md)
--   [Database Guide](docs/DATABASE.md)
--   [Deployment Guide](docs/DEPLOYMENT.md)
-
-## Deployment
-
-### Systemd Service
-
-To run the backend as a systemd service on Linux, see the [Deployment Guide](docs/DEPLOYMENT.md) or check the `downloader-backend.service` file.
+See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for full details.
 
 ## License
 
