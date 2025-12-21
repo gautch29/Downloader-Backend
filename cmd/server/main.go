@@ -91,6 +91,8 @@ func main() {
 
 		r.Get("/settings", handler.GetSettings)
 		r.Put("/settings", handler.UpdateSettings)
+
+		r.Get("/diagnostics", handler.RunDiagnostics)
 	})
 
 	port := os.Getenv("PORT")
