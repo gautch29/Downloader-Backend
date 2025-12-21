@@ -3,8 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gautch29/downloader-backend/internal/database"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -37,8 +39,28 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Generate and store session token
-	// For now, just return success
+	// Generate Session Token
+	token := uuid.New().String()
+	expiresAt := time.Now().Add(30 * 24 * time.Hour) // 30 days
+
+	// Store in DB
+	_, err = database.Pool.Exec(r.Context(), "INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)", userID, token, expiresAt)
+	if err != nil {
+		RespondError(w, http.StatusInternalServerError, "Failed to create session")
+		return
+	}
+
+	// Set Cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    token,
+		Expires:  expiresAt,
+		Path:     "/",
+		HttpOnly: true,
+		// Secure:   true, // Uncomment if using HTTPS
+		SameSite: http.SameSiteLaxMode,
+	})
+
 	RespondJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"user": map[string]string{
@@ -48,6 +70,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-	// TODO: Invalidate session
+	cookie, err := r.Cookie("session_id")
+	if err == nil {
+		// Delete from DB (best effort)
+		database.Pool.Exec(r.Context(), "DELETE FROM sessions WHERE token=$1", cookie.Value)
+	}
+
+	// Clear Cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    "",
+		Expires:  time.Unix(0, 0),
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1,
+	})
+
 	RespondJSON(w, http.StatusOK, map[string]bool{"success": true})
 }

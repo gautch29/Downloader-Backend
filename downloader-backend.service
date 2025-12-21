@@ -1,0 +1,18 @@
+[Unit]
+Description=Downloader Backend Service
+After=network.target postgresql.service
+
+[Service]
+# Change this to your user (e.g., 'root' for CTs is common)
+User=root
+# Change this to the directory where you cloned the repo
+WorkingDirectory=/root/downloader-backend
+# Path to the compiled binary (build with 'go build -o server cmd/server/main.go')
+ExecStart=/root/downloader-backend/server
+Restart=always
+RestartSec=5
+# Load environment variables from .env file
+EnvironmentFile=/root/downloader-backend/.env
+
+[Install]
+WantedBy=multi-user.target
