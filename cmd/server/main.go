@@ -9,6 +9,7 @@ import (
 	"github.com/gautch29/downloader-backend/internal/handler"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -33,7 +34,17 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	// r.Use(middleware.Cors) // TODO: Add CORS support with github.com/go-chi/cors
+	// CORS Configuration
+	// Since backend and frontend are on different hosts/ports, we need to allow cross-origin requests.
+	// Adjust AllowedOrigins to matches your frontend's URL for better security.
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Allow all origins for now (adjust for production)
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	// Public Routes
 	r.Get("/api/health", func(w http.ResponseWriter, r *http.Request) {
