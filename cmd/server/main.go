@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -25,9 +28,32 @@ func main() {
 	}
 	defer database.Pool.Close()
 
+	// CLI Flags
+	createUser := flag.Bool("create-user", false, "Create a new user")
+	username := flag.String("username", "", "Username")
+	password := flag.String("password", "", "Password")
+	flag.Parse()
+
 	// Run Migrations
 	if err := database.Migrate(); err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
+	}
+
+	// Handle CLI Commands
+	if *createUser {
+		if *username == "" || *password == "" {
+			log.Fatal("Username and password are required. Usage: -create-user -username <name> -password <pass>")
+		}
+		hash, err := bcrypt.GenerateFromPassword([]byte(*password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Fatalf("Failed to hash password: %v", err)
+		}
+		_, err = database.Pool.Exec(context.Background(), "INSERT INTO users (username, password_hash) VALUES ($1, $2)", *username, string(hash))
+		if err != nil {
+			log.Fatalf("Failed to create user: %v", err)
+		}
+		log.Printf("User '%s' created successfully!", *username)
+		return
 	}
 
 	// Setup Router
